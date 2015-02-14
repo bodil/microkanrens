@@ -1,0 +1,52 @@
+using dict;
+
+nonfix nil;
+
+var c = {c};
+isvar = matrixp;
+
+walk u s = if (isvar u) && (member s u) then (walk (s ! u) s) else u;
+
+emptystate = (emptyhdict, 0);
+
+mzero = [];
+unit = (:mzero);
+
+infixl (==) ?==;
+  u ?== v = \(s,c) -> case unify u v s of
+              nil = mzero;
+              s   = unit (s,c);
+            end;
+
+unify _ _ nil = nil;
+unify u v s = unify_ (walk u s) (walk v s)
+with
+  unify_ u v = s if (isvar u) && (isvar v) && (u == v);
+  unify_ u v = update s u v if isvar u;
+  unify_ u v = update s v u if isvar v;
+  unify_ u:us v:vs = unify us vs (unify u v s);
+  unify_ u v = s if u == v;
+  unify_ _ _ = nil;
+end;
+
+fresh f = \(s,c) -> (f (var c)) (s,c+1);
+
+mplus [] s2 = s2;
+mplus (s:ss) s2 = s:(mplus ss s2)&;
+
+bind [] g = mzero;
+bind (s:ss) g = mplus (g s) (bind ss g)&;
+
+infixl (||) ?||;
+  g1 ?|| g2 = \(s,c) -> mplus (g1 (s,c)) (g2 (s,c));
+
+infixl (&&) ?&&;
+g1 ?&& g2 = \(s,c) -> bind (g1 (s,c)) g2;
+
+rungoal n g = list (take n (g emptystate));
+
+
+// lol = fresh (\q -> q ?== 7);
+// omg = fresh (\q -> (q ?== 5) ?|| (q ?== 6));
+// wat = lol ?&& omg;
+// rungoal 10 wat;
