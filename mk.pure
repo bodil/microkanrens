@@ -24,12 +24,12 @@ with
   unify_ u v = s if (isvar u) && (isvar v) && (u == v);
   unify_ u v = update s u v if isvar u;
   unify_ u v = update s v u if isvar v;
-  unify_ u:us v:vs = unify us vs (unify u v s);
+  unify_ (u:us) (v:vs) = unify us vs (unify u v s);
   unify_ u v = s if u == v;
   unify_ _ _ = nil;
 end;
 
-fresh f = \(s,c) -> (f (var c)) (s,c+1);
+callfresh f = \(s,c) -> (f (var c)) (s,c+1);
 
 mplus [] s2 = s2;
 mplus (s:ss) s2 = s:(mplus ss s2)&;

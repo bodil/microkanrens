@@ -1,0 +1,13 @@
+using mk;
+
+nonfix fresh;
+infixr 10 in;
+def fresh (v:[]) in body = callfresh (__lambda__ [v] body);
+def fresh (v:vs) in body = callfresh (__lambda__ [v] (fresh vs in body));
+
+infixr 10 <?;
+def n <? goal = rungoal n goal;
+
+// 1 <? fresh [a] in [1,2] ?== [a,2];
+// => [(HDict (avl::bin (-57=>[{0}=>1]) 0 avl::nil avl::nil),1)]
+// reads "one answer: a = 1" if you squint.
