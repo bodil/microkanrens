@@ -32,7 +32,7 @@ end;
 callfresh f = \(s,c) -> (f (var c)) (s,c+1);
 
 mplus [] s2 = s2;
-mplus (s:ss) s2 = s:((mplus ss s2)&);
+mplus (s:ss) s2 = s:((mplus s2 ss)&);
 
 bind [] g = mzero;
 bind (s:ss) g = mplus (g s) ((bind ss g)&);
@@ -45,6 +45,8 @@ g1 ?&& g2 = \(s,c) -> bind (g1 (s,c)) g2;
 
 rungoal n g = list (take n (g emptystate));
 
-// `fives` produces an infinite stream. It had better be lazy.
 // fives x = x ?== 5 ?|| (\sc -> (fives x sc)&);
-// rungoal 3 $ callfresh fives;
+// sixes x = x ?== 6 ?|| (\sc -> (sixes x sc)&);
+// fivesandsixes = callfresh (\x -> (fives x ?|| sixes x));
+// rungoal 4 $ fivesandsixes;
+// Above should yield {0}=>5 and {0}=>6 alternatingly.
