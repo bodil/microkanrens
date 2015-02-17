@@ -10,7 +10,7 @@ walk u s = if (isvar u) && (member s u) then (walk (s ! u) s) else u;
 emptystate = (emptyhdict, 0);
 
 mzero = [];
-unit = (:mzero);
+unit x = [x];
 
 infixl (==) ?==;
   u ?== v = \(s,c) -> case unify u v s of
@@ -43,10 +43,10 @@ g1 ?|| g2 = \(s,c) -> mplus (g1 (s,c)) (g2 (s,c));
 infixl (&&) ?&&;
 g1 ?&& g2 = \(s,c) -> bind (g1 (s,c)) g2;
 
-rungoal n g = list (take n (g emptystate));
+callgoal g = g emptystate;
 
 // fives x = x ?== 5 ?|| (\sc -> (fives x sc)&);
 // sixes x = x ?== 6 ?|| (\sc -> (sixes x sc)&);
 // fivesandsixes = callfresh (\x -> (fives x ?|| sixes x));
-// rungoal 4 $ fivesandsixes;
+// callgoal 4 $ fivesandsixes;
 // Above should yield {0}=>5 and {0}=>6 alternatingly.

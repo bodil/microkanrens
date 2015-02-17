@@ -5,9 +5,27 @@ infixr 10 in;
 def fresh (v:[]) in body = callfresh (__lambda__ [v] body);
 def fresh (v:vs) in body = callfresh (__lambda__ [v] (fresh vs in body));
 
-infixr 10 <?;
-def n <? goal = rungoal n goal;
+def Zzz g = __lambda__ [sc] ((g sc)&);
 
-// 1 <? fresh [a] in [1,2] ?== [a,2];
-// => [(HDict (avl::bin (-57=>[{0}=>1]) 0 avl::nil avl::nil),1)]
-// reads "one answer: a = 1" if you squint.
+walk_ v s = case walk v s of
+              (v:vs) = (walk_ v s) : (walk_ vs s);
+              v = v;
+            end;
+
+reify_1st (s,c) = walk_ (var 0) s;
+
+infixr 0 <?;
+n <? g = map reify_1st $ list (take n (callgoal g));
+
+prefix 0 ?*;
+?* goal = map reify_1st $ list (callgoal goal);
+
+appendo l s out = ([] ?== l ?&& s ?== out)
+                  ?|| (fresh [a,d,res] in
+                       (a:d ?== l ?&& a:res ?== out
+                        ?&& Zzz (appendo d s res)));
+
+// fives x = x ?== 5 ?|| Zzz (fives x);
+// sixes x = x ?== 6 ?|| Zzz (sixes x);
+// fivesandsixes = fresh [x] in fives x ?|| sixes x;
+// 10 <? fresh [q,a,b] in q ?== [a,b] ?&& appendo a b [1,2,3,4,5];
