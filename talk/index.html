@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>presentation title</title>
+    <meta name="author" content="your name here">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <style type="text/css">
+body { visibility: hidden; background: black; }
+    </style>
+  </head>
+  <body>
+
+    <div id="slides" data-background="m/dan.jpg">
+
+      <section>
+        <h1>µKanren</h1>
+        <p style="color: white">running the little things backwards</p>
+        <p>@bodil</p>
+      </section>
+
+      <section>
+        <h4>Relational programming</h4>
+        <p>Programming using relations rather than actions or functions.</p>
+        <blockquote><pre>fresh [q,a,b] in q ?== [a,b]
+?&& appendo a b [1,2,3,4,5];</pre></blockquote>
+      </section>
+
+      <section>
+        <h4>Boring:</h4>
+        <blockquote><pre>fresh [q] in
+appendo [1,2] [3,4,5] q;</pre></blockquote>
+        <blockquote class="fragment"><pre>[[1,2,3,4,5]]</pre></blockquote>
+      </section>
+
+      <section>
+        <h4>Cool:</h4>
+        <blockquote><pre>fresh [q,a,b] in q ?== [a,b]
+?&& appendo a b [1,2,3,4,5];</pre></blockquote>
+        <blockquote class="fragment"><pre>[[[],[1,2,3,4,5]], [[1],[2,3,4,5]],
+[[1,2],[3,4,5]], [[1,2,3],[4,5]],
+[[1,2,3,4],[5]], [[1,2,3,4,5],[]]]</pre></blockquote>
+      </section>
+
+      <section class="photo" data-image="m/gandalf.jpg" data-background="m/pyramid.jpg"></section>
+
+      <section class="photo meme" data-image="m/oz.jpg" data-background="m/trip.jpg">
+        <p class="top">How it's done</p>
+      </section>
+
+      <section>
+        <h4>State</h4>
+        <p>A state defines a set of relations, and a variable counter.</p>
+        <blockquote class="fragment"><pre>( [ {0}=>1, {1}=>2 ], 2 )</pre></blockquote>
+      </section>
+
+      <section>
+        <h4>Stream</h4>
+        <p>A stream is a lazy list of states satisfying a relation.</p>
+        <blockquote class="fragment"><pre>[ ([{0}=>1],1), ... ]</blockquote>
+      </section>
+
+      <section>
+        <h4>Goal</h4>
+        <p>A goal is applied to a state and returns a stream of satisfying states.</p>
+        <blockquote class="fragment"><pre>waste_a_var (s,c) = unit (s,c+1);</blockquote>
+      </section>
+
+      <section>
+        <p>A given collection of goals may be satisfied by zero or more states. The result of a µKanren program is a stream of satisfying states.</p>
+      </section>
+
+      <section>
+        <h4>Fundamental operations</h4>
+        <ul>
+          <li class="fragment">define variable</li>
+          <li class="fragment">define relation</li>
+          <li class="fragment">disjunction (or)</li>
+          <li class="fragment">conjunction (and)</li>
+        </ul>
+      </section>
+
+      <section class="photo meme" data-image="m/flatmap.jpg" data-background="m/headache.jpg">
+        <p class="bottom">let us do programming!</p>
+      </section>
+
+      <section style="background-color: rgba(0,0,0,0.4)">
+        <h3>OK THX BYE</h3>
+        <h4>@bodil</h4>
+        <h4 style="color: white">http://minikanren.org/</h4>
+      </section>
+
+    <script type="text/javascript" src="dist/pink/pink.js"></script>
+  </body>
+</html>
