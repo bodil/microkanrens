@@ -44,6 +44,8 @@ g1 ?&& g2 = \(s,c) -> bind (g1 (s,c)) g2;
 
 callgoal g = g emptystate;
 
+pull n g = list (take n (callgoal g));
+
 // fives x = x ?== 5 ?|| (\sc -> (fives x sc)&);
 // sixes x = x ?== 6 ?|| (\sc -> (sixes x sc)&);
 // fivesandsixes = callfresh (\x -> (fives x ?|| sixes x));
