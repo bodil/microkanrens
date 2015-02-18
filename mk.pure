@@ -5,7 +5,7 @@ nonfix nil;
 var c = {c};
 isvar = matrixp;
 
-walk u s = if (isvar u) && (member s u) then (walk (s ! u) s) else u;
+walk u s = if isvar u && member s u then walk (s ! u) s else u;
 
 emptystate = (emptyhdict, 0);
 
@@ -19,14 +19,13 @@ infixl (==) ?==;
             end;
 
 unify _ _ nil = nil;
-unify u v s = unify_ (walk u s) (walk v s)
-with
-  unify_ u v = s if (isvar u) && (isvar v) && (u == v);
-  unify_ u v = update s u v if isvar u;
-  unify_ u v = update s v u if isvar v;
-  unify_ (u:us) (v:vs) = unify us vs (unify u v s);
-  unify_ u v = s if u == v;
-  unify_ _ _ = nil;
+unify u v s = case (walk u s, walk v s) of
+  (u,v) = s if (isvar u) && (isvar v) && (u == v);
+  (u,v) = update s u v if isvar u;
+  (u,v) = update s v u if isvar v;
+  ((u:us), (v:vs)) = unify us vs (unify u v s);
+  (u, v) = s if u == v;
+  _ = nil;
 end;
 
 callfresh f = \(s,c) -> (f (var c)) (s,c+1);
