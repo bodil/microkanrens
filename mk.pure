@@ -51,3 +51,28 @@ pull n g = list (take n (callgoal g));
 // fivesandsixes = callfresh (\x -> (fives x ?|| sixes x));
 // callgoal 4 $ fivesandsixes;
 // Above should yield {0}=>5 and {0}=>6 alternatingly.
+
+nonfix fresh;
+infixr 10 in;
+def fresh (v:[]) in body = callfresh (__lambda__ [v] body);
+def fresh (v:vs) in body = callfresh (__lambda__ [v] (fresh vs in body));
+
+Zzz g = \sc -> ((g sc)&);
+
+walk_ v s = case walk v s of
+              (v:vs) = (walk_ v s) : (walk_ vs s);
+              v = v;
+            end;
+
+reify_1st (s,c) = walk_ (var 0) s;
+
+infixr 0 <?;
+n <? g = map reify_1st $ list (take n (callgoal g));
+
+prefix 0 ?*;
+?* goal = map reify_1st $ list (callgoal goal);
+
+appendo l r out = (l ?== [] ?&& r ?== out)
+                  ?|| (fresh [a,d,res] in
+                       (a:d ?== l ?&& a:res ?== out
+                        ?&& Zzz (appendo d r res)));
