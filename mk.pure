@@ -12,12 +12,6 @@ emptystate = (emptyhdict, 0);
 mzero = [];
 unit x = [x];
 
-infixl (==) ?==;
-  u ?== v = \(s,c) -> case unify u v s of
-              nil = mzero;
-              s   = unit (s,c);
-            end;
-
 unify _ _ nil = nil;
 unify u v s = case (walk u s, walk v s) of
   (u,v) = s if (isvar u) && (isvar v) && (u == v);
@@ -27,6 +21,12 @@ unify u v s = case (walk u s, walk v s) of
   (u, v) = s if u == v;
   _ = nil;
 end;
+
+infixl (==) ?==;
+  u ?== v = \(s,c) -> case unify u v s of
+              nil = mzero;
+              s   = unit (s,c);
+            end;
 
 callfresh f = \(s,c) -> (f (var c)) (s,c+1);
 
