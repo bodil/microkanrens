@@ -4,6 +4,8 @@
 
 ;;; First, we need a real cons cell implementation:
 
+(declare list?)
+
 (defprotocol ICons
   (car [this])
   (cdr [this]))
@@ -52,12 +54,12 @@
 (defn lvar [c] #{c})
 (defn lvar? [x] (set? x))
 
+(def empty-state [{} 0])
+
 (defn walk [u s]
   (if (and (lvar? u) (contains? s u))
     (walk (s u) s)
     u))
-
-(def empty-state [{} 0])
 
 (def mzero nil)
 (defn unit [sc] (cons sc mzero))
@@ -85,7 +87,7 @@
 
 (defn callfresh [f]
   (fn [[s c]]
-    ((f (lvar c)) [s (+ c 1)])))
+    ((f (lvar c)) [s (inc c)])))
 
 (defn mplus [$1 $2]
   (cond
@@ -122,6 +124,24 @@
 (defn take-all [$]
   (let [$ (pull $)]
     (if (nil? $) nil (cons (car $) (take-all (cdr $))))))
+
+
+
+;; Infinite fives and sixes goal:
+
+;; Naive form:
+;; (defn fives [x]
+;;   (disj (== x 5) (fn [sc] ((fives x) sc))))
+(defn fives [x]
+  (disj (== x 5) (fn [sc] (fn [] ((fives x) sc)))))
+(defn sixes [x]
+  (disj (== x 6) (fn [sc] (fn [] ((sixes x) sc)))))
+
+(def fives-and-sixes (callfresh (fn [x] (disj (fives x) (sixes x)))))
+
+
+
+;; Then I say unto you: Send. Men. To. Summon. MACROS:
 
 (defmacro fresh [vars & body]
   `(callfresh
@@ -171,17 +191,6 @@
 
 
 
-;; Infinite fives and sixes goal:
-
-(defn fives [x]
-  (disj (== x 5) (zzz (fives x))))
-(defn sixes [x]
-  (disj (== x 6) (zzz (sixes x))))
-
-(def fives-and-sixes (callfresh (fn [x] (disj (fives x) (sixes x)))))
-
-
-
 ;; And finally, appendo:
 
 ;; (defn appendo [l r out]
@@ -190,7 +199,7 @@
 ;;    (fresh [a d res]
 ;;      (== (cons a d) l)
 ;;      (== (cons a res) out)
-;;      (zzz (appendo d r res)))))
+;;      (appendo d r res))))
 
 ;; (defn appendo [l r out]
 ;;   (disj+
