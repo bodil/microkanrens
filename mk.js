@@ -13,19 +13,13 @@ class Var {
 const mkvar = (c) => new Var(c);
 const isvar = (c) => c instanceof Var;
 
-class StreamIterator {
-  constructor(stream) { this.stream = stream; }
-  next() {
-    if (this.stream === nil) { return { done: true }; }
-    const d = this.stream.cdr(), value = this.stream.car();
-    this.stream = d;
-    return { done: false, value };
-  }
-}
-
 class Stream {
   constructor(a, d) { this.a = a; this.d = d; }
-  [Symbol.iterator]() { return new StreamIterator(this); }
+  *[Symbol.iterator]() {
+    yield this.car();
+    const next = this.cdr();
+    if (next !== nil) yield* next;
+  }
   car() { return runThunk(this.a); }
   cdr() { return runThunk(this.d); }
   toArray() { return toJSArray(this); }
