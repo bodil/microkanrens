@@ -58,7 +58,7 @@
 
 (defn walk [u s]
   (if (and (lvar? u) (contains? s u))
-    (walk (s u) s)
+    (recur (s u) s)
     u))
 
 (def mzero nil)
