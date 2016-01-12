@@ -12,6 +12,11 @@
   (let ((pr (and (var? u) (assp (lambda (v) (var=? u v)) s))))
     (if pr (walk (cdr pr) s) u)))
 
+;; define pair? function to handle elisp treat empty list '() as
+;; nil value, which may cause an infinite recursion in unify
+(defun pair? (xs)
+  (and (listp xs) (not (null (car xs)))))
+
 (defun ext-s (x v s) `((,x . ,v) . ,s))
 
 (defun == (u v)
@@ -28,7 +33,7 @@
      ((and (var? u) (var? v) (var=? u v)) s)
      ((var? u) (ext-s u v s))
      ((var? v) (ext-s v u s))
-     ((and (listp u) (listp v))
+     ((and (pair? u) (pair? v))
       (let ((s (unify (car u) (car v) s)))
         (and s (unify (cdr u) (cdr v) s))))
      (t (and (equal u v) s))))) ;; TODO is eq more correct than equal?
@@ -56,7 +61,15 @@
    ((functionp $) (lambda () (bind (funcall $) g)))
    (t (mplus (funcall g (car $)) (bind (cdr $) g)))))
 
-(defvar empty-state '(() . 0))
+(setq empty-s (ext-s (var -1) 'dummy '()))
+
+(setq empty-state `(,empty-s . 0))
+
+
+(unify (list 1 2 3) (list 1 2 (var 0)) empty-s)
+
+;; (unify (list 1 2 3) (list 1 2 (var 0)) empty-s)
+;; => (([0] . 3) ([-1] . dummy))
 
 ;; (funcall (call/fresh (lambda (q) (== q 5))) empty-state)
 ;; => (((([0] . 5)) . 1))
@@ -67,3 +80,5 @@
 ;;   (call/fresh (lambda (b) (disj (== b 5) (== b 6)))))
 ;;  empty-state)
 ;; => (((([1] . 5) ([0] . 7)) . 2) ((([1] . 6) ([0] . 7)) . 2))
+
+
