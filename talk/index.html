@@ -9,8 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width">
     <style type="text/css">
-      body { visibility: hidden; background: black; }
-      #slides section pre.clojure span { font-weight: bold; }
+body { visibility: hidden; background: black; }
     </style>
   </head>
   <body>
@@ -23,31 +22,27 @@
         <p>@bodil</p>
       </section>
 
-      <section data-code="omg">
+      <section>
         <h4>Relational programming</h4>
         <p>Programming using relations rather than actions or functions.</p>
-        <blockquote><pre class="clojure">
-(fresh [q a b] (== q (list a b))
-  (appendo a b (list 1 2 3 4 5)))</pre></blockquote>
+        <blockquote><pre>fresh [q,a,b] in q ?== [a,b]
+?&& appendo a b [1,2,3,4,5];</pre></blockquote>
       </section>
 
-      <section data-code="wtf">
+      <section>
         <h4>Boring:</h4>
-        <blockquote><pre class="clojure">
-(fresh [q]
-  (appendo (list 1 2) (list 3 4 5) q))</pre></blockquote>
-        <blockquote class="fragment"><pre>((1 2 3 4 5))</pre></blockquote>
+        <blockquote><pre>fresh [q] in
+appendo [1,2] [3,4,5] q;</pre></blockquote>
+        <blockquote class="fragment"><pre>[[1,2,3,4,5]]</pre></blockquote>
       </section>
 
-      <section data-code="bbq">
+      <section>
         <h4>Cool:</h4>
-        <blockquote><pre class="clojure">
-(fresh [q a b] (== q (list a b))
-  (appendo a b (list 1 2 3 4 5)))</pre></blockquote>
-        <blockquote class="fragment"><pre class="clojure">
-((() (1 2 3 4 5)) ((1) (2 3 4 5))
- ((1 2) (3 4 5)) ((1 2 3) (4 5))
- ((1 2 3 4) (5)) ((1 2 3 4 5) ()))</pre></blockquote>
+        <blockquote><pre>fresh [q,a,b] in q ?== [a,b]
+?&& appendo a b [1,2,3,4,5];</pre></blockquote>
+        <blockquote class="fragment"><pre>[[[],[1,2,3,4,5]], [[1],[2,3,4,5]],
+[[1,2],[3,4,5]], [[1,2,3],[4,5]],
+[[1,2,3,4],[5]], [[1,2,3,4,5],[]]]</pre></blockquote>
       </section>
 
       <section class="photo" data-image="m/gandalf.jpg" data-background="m/pyramid.jpg"></section>
@@ -56,22 +51,22 @@
         <p class="top">How it's done</p>
       </section>
 
-      <section data-code="lol">
+      <section>
         <h4>State</h4>
         <p>A state defines a set of relations, and a variable counter.</p>
-        <blockquote class="fragment"><pre class="clojure">( [ { #{0} 1, #{1} 2} 2 ] )</pre></blockquote>
+        <blockquote class="fragment"><pre>( [ {0}=>1, {1}=>2 ], 2 )</pre></blockquote>
       </section>
 
-      <section data-code="wat">
+      <section>
         <h4>Stream</h4>
         <p>A stream is a lazy list of states satisfying a relation.</p>
-        <blockquote class="fragment"><pre>( [{#{0} 1} 1] ... )</blockquote>
+        <blockquote class="fragment"><pre>[ ([{0}=>1],1), ... ]</blockquote>
       </section>
 
-      <section data-code="i don't even">
+      <section>
         <h4>Goal</h4>
         <p>A goal is applied to a state and returns a stream of satisfying states.</p>
-        <blockquote class="fragment"><pre>(fn [[state counter]] (unit [state (inc counter)]))</blockquote>
+        <blockquote class="fragment"><pre>waste_a_var (s,c) = unit (s,c+1);</blockquote>
       </section>
 
       <section>

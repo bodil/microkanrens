@@ -22,7 +22,7 @@
      (let ([s (unify fl fr s)])
        (and s (unify rl rr s)))]
     [(l l) s]
-    [(_ _) #f]
+    [(_ _) #f]))
 
 (define (== left right)
   (match-lambda
