@@ -2,8 +2,7 @@ module Kanren where
 
 import Prelude
 
-import Data.Foldable (class Foldable)
-import Data.List (List(Cons))
+import Data.Foldable (class Foldable, foldr)
 import Data.List as List
 import Data.List.Lazy as Lazy
 import Data.Map (Map)
@@ -17,7 +16,8 @@ type Stream a = Lazy.List a
 data LogicValue = LVar Int
                 | Int Int
                 | String String
-                | List (List LogicValue)
+                | Pair LogicValue LogicValue
+                | Empty
 
 type State = Map Int LogicValue
 
@@ -26,7 +26,7 @@ data SC = SC State Int
 type Goal = SC → Stream SC
 
 class AsLogicValue a where
-  toLogicValue :: a → LogicValue
+  quote :: a → LogicValue
 
 emptyState :: SC
 emptyState = SC Map.empty 0
@@ -35,31 +35,46 @@ instance eqLogicValue :: Eq LogicValue where
   eq (LVar a) (LVar b) = a == b
   eq (Int a) (Int b) = a == b
   eq (String a) (String b) = a == b
-  eq (List a) (List b) = a == b
+  eq (Pair a b) (Pair a' b') = a == b && a' == b'
+  eq Empty Empty = true
   eq _ _ = false
+
+isProperList :: LogicValue → Boolean
+isProperList (Pair car cdr) = isProperList cdr
+isProperList Empty = true
+isProperList _ = false
+
+toArray :: LogicValue → Maybe (Array LogicValue)
+toArray l@(Pair _ _) | isProperList l =
+  Just $ List.toUnfoldable $ convert l
+  where convert (Pair car cdr) = List.Cons car $ convert cdr
+        convert _ = List.Nil
+toArray _ = Nothing
 
 instance showLogicValue :: Show LogicValue where
   show (LVar i) = "_." ++ show i
   show (Int i) = show i
   show (String s) = s
-  show (List l) = let l' :: Array LogicValue
-                      l' = List.toUnfoldable l
-                  in show l'
+  show p@(Pair _ _) | isProperList p = case toArray p of
+    Just l → show l
+    Nothing → "bad list"
+  show (Pair car cdr) = "(" ++ show car ++ " . " ++ show cdr ++ ")"
+  show Empty = "[]"
 
 instance showSC :: Show SC where
   show (SC s c) = "state=" ++ show s ++ ", counter=" ++ show c
 
 instance logicValueAsLogicValue :: AsLogicValue LogicValue where
-  toLogicValue = id
+  quote = id
 
 instance intAsLogicValue :: AsLogicValue Int where
-  toLogicValue = Int
+  quote = Int
 
 instance stringAsLogicValue :: AsLogicValue String where
-  toLogicValue = String
+  quote = String
 
 instance foldableAsLogicValue :: (AsLogicValue a, Foldable f) ⇒ AsLogicValue (f a) where
-  toLogicValue = List.fromFoldable >>> map toLogicValue >>> List
+  quote = foldr (\car cdr -> Pair (quote car) cdr) Empty
 
 walk :: LogicValue → State → LogicValue
 walk k@(LVar l) s  = case Map.lookup l s of
@@ -76,15 +91,14 @@ unify l r s = unify' l r $ Just s
       Tuple (LVar l) (LVar r) | l == r → Just s
       Tuple (LVar l) r → Just $ Map.insert l r s
       Tuple l (LVar r) → Just $ Map.insert r l s
-      Tuple (List (Cons l ls)) (List (Cons r rs)) →
-        unify' (List ls) (List rs) (unify' l r (Just s))
+      Tuple (Pair l ls) (Pair r rs) → unify' ls rs (unify' l r (Just s))
       Tuple l r | l == r → Just s
       _ → Nothing
 
 infixl 4 equals as ?==
 
 equals :: ∀ a b. (AsLogicValue a, AsLogicValue b) ⇒ a → b → Goal
-equals l r = \(SC s c) → case unify (toLogicValue l) (toLogicValue r) s of
+equals l r = \(SC s c) → case unify (quote l) (quote r) s of
   Nothing → mempty
   Just s' → return $ SC s' c
 
@@ -113,7 +127,7 @@ pull n = callGoal >>> Lazy.take n
 
 walk_ :: LogicValue → State → LogicValue
 walk_ v s = case walk v s of
-  List l → List $ map (flip walk_ s) l
+  Pair car cdr -> Pair (walk_ car s) (walk_ cdr s)
   v → v
 
 reify1st :: SC → LogicValue
@@ -123,10 +137,14 @@ run' :: Int → Goal → Array LogicValue
 run' n = pull n >>> map reify1st >>> Lazy.toUnfoldable
 
 run :: Goal → Array LogicValue
-run g = []
+run = callGoal >>> map reify1st >>> Lazy.toUnfoldable
 
 infixl 0 run' as <?
 
-appendo :: LogicValue → LogicValue → LogicValue → Goal
-appendo l r out = (l ?== [] ?&& r ?== out)
-                  ?|| (fresh3 \a d res → (conso a d ?== l) ?&& (conso a res ?== out) ?&& (appendo d r res))
+appendo :: ∀ a b c. (AsLogicValue a, AsLogicValue b, AsLogicValue c) ⇒ a → b → c → Goal
+appendo l r out = appendo' (quote l) (quote r) (quote out)
+  where appendo' l r out = (l ?== Empty ?&& r ?== out)
+                           ?|| (fresh3 \a d res →
+                                 Pair a d ?== l
+                                 ?&& Pair a res ?== out
+                                 ?&& appendo' d r res)

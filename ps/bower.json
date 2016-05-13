@@ -1,5 +1,5 @@
 {
-  "name": "ps",
+  "name": "microkanren",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -7,13 +7,9 @@
     "output"
   ],
   "dependencies": {
-    "purescript-console": "^0.1.0",
-    "purescript-lazy": "^0.4.1",
     "purescript-maps": "^0.5.7",
     "purescript-monoid": "^0.3.2",
     "purescript-lists": "^0.7.10",
-    "purescript-tuples": "^0.4.0",
-    "purescript-generics": "^0.7.2",
-    "purescript-free": "^0.9.1"
+    "purescript-tuples": "^0.4.0"
   }
 }
