@@ -25,21 +25,24 @@ body { visibility: hidden; background: black; }
       <section>
         <h4>Relational programming</h4>
         <p>Programming using relations rather than actions or functions.</p>
-        <blockquote><pre>fresh [q,a,b] in q ?== [a,b]
-?&& appendo a b [1,2,3,4,5];</pre></blockquote>
+        <blockquote><pre class="haskell">
+fresh [q,a,b] in q ?== [a,b]
+                 ?&& appendo a b [1,2,3,4,5];</pre></blockquote>
       </section>
 
       <section>
         <h4>Boring:</h4>
-        <blockquote><pre>fresh [q] in
-appendo [1,2] [3,4,5] q;</pre></blockquote>
+        <blockquote><pre class="haskell">
+fresh [q] in
+  appendo [1,2] [3,4,5] q;</pre></blockquote>
         <blockquote class="fragment"><pre>[[1,2,3,4,5]]</pre></blockquote>
       </section>
 
       <section>
         <h4>Cool:</h4>
-        <blockquote><pre>fresh [q,a,b] in q ?== [a,b]
-?&& appendo a b [1,2,3,4,5];</pre></blockquote>
+        <blockquote><pre class="haskell">
+fresh [q,a,b] in q ?== [a,b]
+  ?&& appendo a b [1,2,3,4,5];</pre></blockquote>
         <blockquote class="fragment"><pre>[[[],[1,2,3,4,5]], [[1],[2,3,4,5]],
 [[1,2],[3,4,5]], [[1,2,3],[4,5]],
 [[1,2,3,4],[5]], [[1,2,3,4,5],[]]]</pre></blockquote>
@@ -54,19 +57,20 @@ appendo [1,2] [3,4,5] q;</pre></blockquote>
       <section>
         <h4>State</h4>
         <p>A state defines a set of relations, and a variable counter.</p>
-        <blockquote class="fragment"><pre>( [ {0}=>1, {1}=>2 ], 2 )</pre></blockquote>
+        <blockquote><pre>( [ {0}=>1, {1}=>2 ], 2 )</pre></blockquote>
       </section>
 
       <section>
         <h4>Stream</h4>
         <p>A stream is a lazy list of states satisfying a relation.</p>
-        <blockquote class="fragment"><pre>[ ([{0}=>1],1), ... ]</blockquote>
+        <blockquote><pre>[ ([{0}=>1],1), ... ]</blockquote>
       </section>
 
       <section>
         <h4>Goal</h4>
         <p>A goal is applied to a state and returns a stream of satisfying states.</p>
-        <blockquote class="fragment"><pre>waste_a_var (s,c) = unit (s,c+1);</blockquote>
+        <blockquote><pre>waste_a_var (s,c) = unit (s,c+1);</blockquote>
+          <p>(Goals are just functions so they compose!)</p>
       </section>
 
       <section>
