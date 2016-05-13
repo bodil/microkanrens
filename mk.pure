@@ -5,7 +5,8 @@ nonfix nil;
 var c = {c};
 isvar = matrixp;
 
-walk u s = if isvar u && member s u then walk (s ! u) s else u;
+walk key state = if isvar key && member state key
+                 then walk (state ! key) state else key;
 
 emptystate = (emptyhdict, 0);
 
@@ -13,38 +14,38 @@ mzero = [];
 unit x = [x];
 
 unify _ _ nil = nil;
-unify u v s = case (walk u s, walk v s) of
-  (u,v) = s if (isvar u) && (isvar v) && (u == v);
-  (u,v) = update s u v if isvar u;
-  (u,v) = update s v u if isvar v;
-  ((u:us), (v:vs)) = unify us vs (unify u v s);
-  (u, v) = s if u == v;
+unify left right state = case (walk left state, walk right state) of
+  (l, r) = state if (isvar l) && (isvar r) && (l == r);
+  (l, r) = update state l r if isvar l;
+  (l, r) = update state r l if isvar r;
+  ((l:ls), (r:rs)) = unify ls rs (unify l r state);
+  (l, r) = state if l == r;
   _ = nil;
 end;
 
 infixl (==) ?==;
-  u ?== v = \(s,c) -> case unify u v s of
-              nil = mzero;
-              s   = unit (s,c);
-            end;
+l ?== r = \(state, counter) -> case unify l r state of
+            nil = mzero;
+            state = unit (state, counter);
+          end;
 
-callfresh f = \(s,c) -> (f (var c)) (s,c+1);
+callfresh f = \(state, counter) -> (f (var counter)) (state, counter + 1);
 
-mplus [] s2 = s2;
-mplus (s:ss) s2 = s:((mplus s2 ss)&);
+mplus [] stream2 = stream2;
+mplus (head:tail) stream2 = head:((mplus stream2 tail)&);
 
-bind [] g = mzero;
-bind (s:ss) g = mplus (g s) ((bind ss g)&);
+bind [] goal = mzero;
+bind (head:tail) goal = mplus (goal head) ((bind tail goal)&);
 
 infixl (||) ?||;
-g1 ?|| g2 = \(s,c) -> mplus (g1 (s,c)) (g2 (s,c));
+goal1 ?|| goal2 = \(s,c) -> mplus (goal1 (s,c)) (goal2 (s,c));
 
 infixl (&&) ?&&;
-g1 ?&& g2 = \(s,c) -> bind (g1 (s,c)) g2;
+goal1 ?&& goal2 = \(s,c) -> bind (goal1 (s,c)) goal2;
 
-callgoal g = g emptystate;
+callgoal goal = goal emptystate;
 
-pull n g = list (take n (callgoal g));
+pull n goal = list (take n (callgoal goal));
 
 // fives x = x ?== 5 ?|| (\sc -> (fives x sc)&);
 // sixes x = x ?== 6 ?|| (\sc -> (sixes x sc)&);
