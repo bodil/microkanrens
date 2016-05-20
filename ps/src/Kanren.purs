@@ -9,7 +9,6 @@ import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Monoid (mempty)
-import Data.Tuple (Tuple(Tuple))
 
 type Stream a = Lazy.List a
 
@@ -87,13 +86,13 @@ unify l r s = unify' l r $ Just s
   where
     unify' :: LogicValue → LogicValue → Maybe State → Maybe State
     unify' _ _ Nothing = Nothing
-    unify' l r (Just s) = case Tuple (walk l s) (walk r s) of
-      Tuple (LVar l) (LVar r) | l == r → Just s
-      Tuple (LVar l) r → Just $ Map.insert l r s
-      Tuple l (LVar r) → Just $ Map.insert r l s
-      Tuple (Pair l ls) (Pair r rs) → unify' ls rs (unify' l r (Just s))
-      Tuple l r | l == r → Just s
-      _ → Nothing
+    unify' l r (Just s) = case (walk l s), (walk r s) of
+      (LVar l), (LVar r) | l == r → Just s
+      (LVar l), r → Just $ Map.insert l r s
+      l, (LVar r) → Just $ Map.insert r l s
+      (Pair l ls), (Pair r rs) → unify' ls rs (unify' l r (Just s))
+      l, r | l == r → Just s
+      _, _ → Nothing
 
 infixl 4 equals as ?==
 
