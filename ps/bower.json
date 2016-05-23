@@ -12,7 +12,15 @@
     "purescript-maps": "^0.5.7",
     "purescript-maybe": "^0.3.5",
     "purescript-monoid": "^0.3.2",
-    "purescript-prelude": "^0.1.5"
+    "purescript-prelude": "^0.1.5",
+    "purescript-free": "^0.9.1",
+    "purescript-profunctor": "^0.3.2",
+    "purescript-control": "^0.3.2",
+    "purescript-contravariant": "^0.2.3",
+    "purescript-arrows": "^0.6.2",
+    "purescript-lens": "^0.9.1",
+    "purescript-profunctor-lenses": "^0.5.4",
+    "purescript-st": "^0.1.1"
   },
   "devDependencies": {
     "purescript-test-unit": "^6.0.0"
